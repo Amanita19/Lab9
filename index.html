@@ -1,150 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 9</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 9</title>
 
-  <style>
-    button {
-      margin: 3px;
-    }
-
-    input[type="number"] {
-      width: 60px;
-    }
-
-    output {
-      border: 1px solid gray;
-      display: block;
-      height: 18px;
-      margin-top: 5px;
-      padding: 5px;
-      width: 240px;
-    }
-  </style>
+    <style>
+        button {
+            margin: 3px;
+        }
+        
+        input[type="number"] {
+            width: 60px;
+        }
+        
+        output {
+            border: 1px solid gray;
+            display: block;
+            height: 18px;
+            margin-top: 5px;
+            padding: 5px;
+            width: 240px;
+        }
+    </style>
 </head>
+
 <body>
-  <fieldset>
-    <legend>Error Calculator</legend>
-    <input type="number" name="first-num" id="first-num" />
-    <select name="operator" id="operator">
+    <fieldset>
+        <legend>Error Calculator</legend>
+        <input type="number" name="first-num" id="first-num" />
+        <select name="operator" id="operator">
       <option>+</option>
       <option>-</option>
       <option>*</option>
       <option>/</option>
     </select>
-    <input type="number" name="second-num" id="second-num" />
-    <button id="calculate">Calculate</button>
-    <br />
-    <output></output>
-  </fieldset>
+        <input type="number" name="second-num" id="second-num" />
+        <button id="calculate">Calculate</button>
+        <br />
+        <output></output>
+    </fieldset>
 
-  <section id="error-btns">
-    <button>Console Log Demo</button>
-    <button>Console Error Demo</button>
-    <button>Console Dir</button>
-    <button>Console dirxml</button>
-    <button>Console Group Start</button>
-    <button>Console Group End</button>
-    <button>Console Table</button>
-    <button>Start Timer</button>
-    <button>End Timer</button>
-    <button>Console Trace</button>
-    <button>Trigger a Global Error</button>
-  </section>
+    <section id="error-btns">
+        <button>Console Log Demo</button>
+        <button>Console Error Demo</button>
+        <button>Console Dir</button>
+        <button>Console dirxml</button>
+        <button>Console Group Start</button>
+        <button>Console Group End</button>
+        <button>Console Table</button>
+        <button>Start Timer</button>
+        <button>End Timer</button>
+        <button>Console Trace</button>
+        <button>Trigger a Global Error</button>
+    </section>
 
-  <script>
-    let calculateBtn = document.querySelector('#calculate');
-    calculateBtn.addEventListener('click', () => {
-      let output = document.querySelector('output');
-      let firstNum = document.querySelector('#first-num').value;
-      let secondNum = document.querySelector('#second-num').value;
-      let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
-    });
+    <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+    <script>
+        window.TrackJS && TrackJS.install({
+            token: "61d2ef172a084607b00f53300e77e2cf"
+                // for more configuration options, see https://docs.trackjs.com
+        });
+    </script>
+    <script>
+        class InputError extends Error {
+            constructor(msg) {
+                super(msg);
+                this.name = "Input Error";
+            }
+        }
 
-    let isValidInput = true;
-    try {
-      if(firstNum == "") throw "Invalid input.";
-      if(secondNum == "") throw "Invalid input.";
-    } catch(err) {
-      isValidInput = false;
-    } finally {
-      if (isValidInput) {
-        console.log("Both numbers are valid.");
-      }
-      else {
-        console.log("Error: Bad input or inputs.");
-      } 
-    }
+        let isValidInput;
+        let calculateBtn = document.querySelector('#calculate');
+        calculateBtn.addEventListener('click', () => {
+            let output = document.querySelector('output');
+            let firstNum = document.querySelector('#first-num').value;
+            let secondNum = document.querySelector('#second-num').value;
+            let operator = document.querySelector('#operator').value;
+            isValidInput = true;
+            try {
+                console.log(`${firstNum} ${operator} ${secondNum}`)
+                output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+            } catch (err) {
+                isValidInput = false;
+                console.error(err);
+            } finally {
+                if (!isValidInput) {
+                    throw new InputError("Error: Bad input or inputs.");
+                }
+            }
+        });
 
-    if (isValidInput) {
-      if (secondNum == 0  && operator == "/") {
-        throw new DivideByZero("Cannot divide by 0.");
-      }
-    }
-    let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
-    //Console Log Demo
-    errorBtns[0].addEventListener('click', () => {
-      let firstNum = document.querySelector('#first-num').value;
-      let secondNum = document.querySelector('#second-num').value;
-      let operator = document.querySelector('#operator').value;
-      console.log("User inputs are firstNum: " + firstNum + ", secondNum: " + secondNum + ", and operator: " + operator + ".");
-    });
-    //Console Error Demo
-    errorBtns[1].addEventListener('click', () => {
-      console.error("Invalid operation.");
-    });
-    //Console Dir
-    errorBtns[2].addEventListener('click', () => {
-      console.dir(document.body.querySelector("output").childNodes);
-    });
-    //Console dirxml
-    errorBtns[3].addEventListener('click', () => {
-      console.dirxml(document.body);
-    });
-    //Console Group Start
-    errorBtns[4].addEventListener('click', () => {
-      console.group("Start Grouping");
-    });
-    //Console Group End
-    errorBtns[5].addEventListener('click', () => {
-      console.groupEnd();
-    });
-    //Console Table
-    errorBtns[6].addEventListener('click', () => {
-      let array = [{
-        firstNum: document.querySelector('#first-num').value,
-        secondNum: document.querySelector('#second-num').value,
-        operator: document.querySelector('#operator').value,
-      }];
-      console.table(array);
-    });
-    //Start Timer
-    errorBtns[7].addEventListener('click', () => {
-      console.time();
-    });
-    //End Timer
-    errorBtns[8].addEventListener('click', () => {
-      console.timeEnd();
-    });
-    //Console Trace
-    errorBtns[9].addEventListener('click', () => {
-      console.trace(calculateBtn);
-    });
-    //Trigger a Global Error
-    errorBtns[10].addEventListener('click', () => {
-      let firstNum = "$";
-      let secondNum = "#";
-      let operator = "/";
-      eval(`${firstNum} ${operator} ${secondNum}`)
-      window.onerror = function (msg, url, lineNo, columnNo, error) {
-        alert("There has been an error:" + msg);
-        return false;
-      }
-    });
-  </script>
+
+        if (isValidInput) {
+            if (secondNum == 0 && operator == "/") {
+                throw new DivideByZero("Cannot divide by 0.");
+            }
+        }
+        let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+        //Console Log Demo
+        errorBtns[0].addEventListener('click', () => {
+            let firstNum = document.querySelector('#first-num').value;
+            let secondNum = document.querySelector('#second-num').value;
+            let operator = document.querySelector('#operator').value;
+            console.log("User inputs are firstNum: " + firstNum + ", secondNum: " + secondNum + ", and operator: " + operator + ".");
+        });
+        //Console Error Demo
+        errorBtns[1].addEventListener('click', () => {
+            console.error("Invalid operation.");
+        });
+        //Console Dir
+        errorBtns[2].addEventListener('click', () => {
+            console.dir(document.body.querySelector("output").childNodes);
+        });
+        //Console dirxml
+        errorBtns[3].addEventListener('click', () => {
+            console.dirxml(document.body);
+        });
+        //Console Group Start
+        errorBtns[4].addEventListener('click', () => {
+            console.group("Start Grouping");
+        });
+        //Console Group End
+        errorBtns[5].addEventListener('click', () => {
+            console.groupEnd();
+        });
+        //Console Table
+        errorBtns[6].addEventListener('click', () => {
+            let array = [{
+                firstNum: document.querySelector('#first-num').value,
+                secondNum: document.querySelector('#second-num').value,
+                operator: document.querySelector('#operator').value,
+            }];
+            console.table(array);
+        });
+        //Start Timer
+        errorBtns[7].addEventListener('click', () => {
+            console.time();
+        });
+        //End Timer
+        errorBtns[8].addEventListener('click', () => {
+            console.timeEnd();
+        });
+        //Console Trace
+        errorBtns[9].addEventListener('click', () => {
+            console.trace(calculateBtn);
+        });
+        //Trigger a Global Error
+        errorBtns[10].addEventListener('click', () => {
+            let firstNum = "$";
+            let secondNum = "#";
+            let operator = "/";
+            eval(`${firstNum} ${operator} ${secondNum}`)
+            window.onerror = function(msg, url, lineNo, columnNo, error) {
+                alert("There has been an error:" + msg);
+                return false;
+            }
+        });
+    </script>
 </body>
+
 </html>
